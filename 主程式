@@ -41,7 +41,7 @@
             useEffect(() => { localStorage.setItem('bear365_data', JSON.stringify(savings)); }, [savings]);
             useEffect(() => { localStorage.setItem('bear365_wishes', JSON.stringify(wishes)); }, [wishes]);
             
-            // 簡易版聖經經文抓取 (可手動擴充或串接 API)
+            // 簡易版聖經經文抓取
             const fetchVerse = () => {
                 const verses = [
                     "凡事都能做，在於那加給我力量的。(腓立比書 4:13)",
@@ -112,9 +112,14 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
 
-        // Register Service Worker for PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+        // 安全地註冊 Service Worker
+        // 在某些預覽環境（如 Canvas）中，路徑可能無法解析，因此我們加入環境檢查
+        if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && !window.location.hostname.includes('usercontent.goog')) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW registration skipped or failed in this environment'));
+            });
         }
     </script>
 </body>
