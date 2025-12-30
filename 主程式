@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>🐻 365</title>
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="🐻 365">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #F4F5F7; }
+        .bible-text { font-family: "PingFang TC", "Heiti TC", sans-serif !important; word-break: keep-all; line-height: 1.8; }
+        .savings-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        @media (min-width: 640px) { .savings-grid { grid-template-columns: repeat(10, 1fr); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- React & Lucide Icons -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { Heart, Target, List, Sparkles, CheckCircle2, RefreshCw } = lucide;
+
+        function App() {
+            const [activeTab, setActiveTab] = useState('plan');
+            const [savings, setSavings] = useState(() => JSON.parse(localStorage.getItem('bear365_data') || '[]'));
+            const [wishes, setWishes] = useState(() => JSON.parse(localStorage.getItem('bear365_wishes') || '[]'));
+            const [bibleVerse, setBibleVerse] = useState("말씀을 불러오는 중...");
+            
+            useEffect(() => { localStorage.setItem('bear365_data', JSON.stringify(savings)); }, [savings]);
+            useEffect(() => { localStorage.setItem('bear365_wishes', JSON.stringify(wishes)); }, [wishes]);
+            
+            // 簡易版聖經經文抓取 (可手動擴充或串接 API)
+            const fetchVerse = () => {
+                const verses = [
+                    "凡事都能做，在於那加給我力量的。(腓立比書 4:13)",
+                    "應當一無掛慮，只要凡事藉著禱告、祈求，和感謝。(腓立比書 4:6)",
+                    "你們要在那裡，因為你們的心在那裡。(馬太福音 6:21)",
+                    "愛是恆久忍耐，又有恩慈。(哥林多前書 13:4)"
+                ];
+                setBibleVerse(verses[Math.floor(Math.random() * verses.length)]);
+            };
+
+            useEffect(() => { fetchVerse(); }, []);
+
+            const toggle = (i) => {
+                if (window.confirm(`Day ${i+1}: 200원을 저축하셨나요?`)) {
+                    setSavings(prev => prev.includes(i) ? prev.filter(v => v !== i) : [...prev, i]);
+                }
+            };
+
+            const savedAmount = savings.length * 200;
+            const progress = ((savedAmount / 73000) * 100).toFixed(1);
+
+            return (
+                <div className="max-w-md mx-auto p-6 pt-12 pb-20">
+                    <header className="flex justify-between items-center mb-8">
+                        <h1 className="text-3xl font-black tracking-tighter">🐻 365</h1>
+                        <div className="text-xs font-bold text-gray-400">PLANNER</div>
+                    </header>
+
+                    <div className="bg-[#1A1A1A] text-white rounded-[32px] p-6 mb-6 shadow-xl">
+                        <p className="text-[10px] opacity-40 mb-1 uppercase tracking-widest">Total Savings</p>
+                        <div className="text-3xl font-bold mb-4">{savedAmount.toLocaleString()} <span className="text-sm opacity-50">원</span></div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-[10px] font-bold opacity-40">
+                                <span>PROGRESS {progress}%</span>
+                                <span>GOAL 73,000</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                <div className="h-full bg-white transition-all duration-1000" style={{width: `${progress}%`}}></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex bg-gray-200/50 p-1 rounded-2xl mb-6">
+                        <button onClick={()=>setActiveTab('plan')} className={`flex-1 py-3 text-xs font-bold rounded-xl ${activeTab==='plan'?'bg-white shadow-sm':'text-gray-500'}`}>저축 달력</button>
+                        <button onClick={()=>setActiveTab('wishlist')} className={`flex-1 py-3 text-xs font-bold rounded-xl ${activeTab==='wishlist'?'bg-white shadow-sm':'text-gray-500'}`}>위시리스트</button>
+                    </div>
+
+                    <div className="bg-white rounded-[32px] shadow-sm p-6 mb-6">
+                        {activeTab === 'plan' ? (
+                            <div className="savings-grid">
+                                {[...Array(365)].map((_, i) => (
+                                    <button key={i} onClick={()=>toggle(i)} className={`aspect-square rounded-xl border-2 flex items-center justify-center text-[9px] font-bold ${savings.includes(i)?'bg-gray-100 border-transparent text-gray-300':'border-gray-50 text-black'}`}>
+                                        {savings.includes(i) ? <CheckCircle2 size={12}/> : i+1}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : <div className="text-center py-20 text-gray-300 text-sm">위시리스트를 작성해보세요.</div>}
+                    </div>
+
+                    <div className="bg-white rounded-[32px] p-8 text-center border border-gray-50">
+                        <p className="bible-text text-lg text-gray-800 font-medium">{bibleVerse}</p>
+                        <button onClick={fetchVerse} className="mt-4 text-[10px] font-bold text-gray-300">새로운 말씀</button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
