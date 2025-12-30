@@ -1,16 +1,21 @@
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open('bear365-v1').then((cache) => cache.addAll([
-      '/',
-      '/index.html',
-      '/manifest.json',
-      '/icon.png'
-    ]))
-  );
-});
-
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => response || fetch(e.request))
-  );
-});
+{
+  "name": "🐻 365 存錢計畫",
+  "short_name": "🐻 365",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F2EA",
+  "theme_color": "#F5F2EA",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
