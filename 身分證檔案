@@ -1,0 +1,15 @@
+{
+  "name": "🐻 365 Savings Plan",
+  "short_name": "🐻 365",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#F4F5F7",
+  "theme_color": "#1A1A1A",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2619/2619277.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
